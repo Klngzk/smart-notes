@@ -1,4 +1,4 @@
-# Smart Notes (Stub)
+# Smart Notes (Main)
 
 Scaffold for a full-stack note-taking app with AI-powered summarization.
 
