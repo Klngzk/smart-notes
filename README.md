@@ -16,20 +16,6 @@
 
 ---
 
-### 🗂 Project 
-
-smart-notes/
-├── backend/
-│ ├── prisma/ → Prisma schema and migrations
-│ ├── src/ → Express app, routes, controllers, utils
-│ └── Dockerfile
-├── frontend/
-│ ├── src/ → React pages, components, routes
-│ └── Dockerfile
-├── docker-compose.yml
-├── .env.example
-└── README.md
-
 ## 🚀 Setup & Run Instructions
 
 ### ✅ Prerequisites
