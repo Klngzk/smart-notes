@@ -26,6 +26,7 @@ services:
       - postgres
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/smartnotes
+      FRONTEND_URL: http://localhost:3000
     command: >
       sh -c "
         npx prisma migrate deploy;

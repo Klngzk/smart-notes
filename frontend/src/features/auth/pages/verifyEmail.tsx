@@ -1,8 +1,3 @@
-// TODO: Timer for verification link expiration
-// TODO: Fix spam toast clicking
-// TODO:  show emails
-// TODO:  Password forgot
-
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { verifyEmail } from "../api";

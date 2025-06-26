@@ -3,22 +3,28 @@ import { useParams, useNavigate } from "react-router-dom";
 import { fetchNoteById, createNote, updateNote } from "../api";
 import { useAuth } from "../../auth/context/authContext";
 import NoteForm from "../../../components/noteForm";
+import toast from "react-hot-toast";
 
+/**
+ * NoteEditor component
+ * - Handles both creating and editing notes.
+ * - Loads note data if editing, otherwise shows a blank form.
+ */
 const NoteEditor = () => {
   const { token } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
-
   const isEdit = Boolean(id);
 
+  // Form state
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [loading, setLoading] = useState(isEdit); // only load if editing
+  const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  // Reset form when switching to add mode
   useEffect(() => {
-    // Reset form when switching from edit to add mode
     if (!id) {
       setTitle("");
       setContent("");
@@ -27,6 +33,8 @@ const NoteEditor = () => {
       setSaving(false);
     }
   }, [id]);
+
+  // Fetch note data if editing
   useEffect(() => {
     if (isEdit && token && id) {
       setLoading(true);
@@ -40,26 +48,18 @@ const NoteEditor = () => {
     }
   }, [isEdit, token, id]);
 
-  useEffect(() => {
-    // Reset form when switching from edit to add mode
-    if (!id) {
-      setTitle("");
-      setContent("");
-      setError("");
-      setLoading(false);
-      setSaving(false);
-    }
-  }, [id]);
-
+  // Handle form submission for both add and edit
   const handleSubmit = async (newTitle: string, newContent: string) => {
     setSaving(true);
     setError("");
     try {
       if (isEdit && id && token) {
         await updateNote(token, id, { title: newTitle, content: newContent });
+        toast.success("Note updated successfully");
         navigate(`/notes/${id}`);
       } else if (token) {
         await createNote(token, { title: newTitle, content: newContent });
+        toast.success("Note created successfully");
         navigate("/notes");
       }
     } catch (err: any) {
@@ -70,8 +70,7 @@ const NoteEditor = () => {
   };
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;
-  if (error && !isEdit)
-    return <p className="text-red-600 text-center">{error}</p>;
+  if (error && !isEdit) return <p className="text-red-600 text-center">{error}</p>;
 
   return (
     <div className="max-w-3xl mx-auto mt-10">

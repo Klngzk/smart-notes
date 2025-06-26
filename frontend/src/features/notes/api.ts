@@ -2,6 +2,10 @@ import type { Note } from "./types";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+/**
+ * Fetch notes for the authenticated user.
+ * Supports search, pagination (skip & take).
+ */
 export const fetchNotes = async (
   token: string,
   search: string = "",
@@ -23,6 +27,9 @@ export const fetchNotes = async (
   return data;
 };
 
+/**
+ * Create a new note for the authenticated user.
+ */
 export const createNote = async (token: string, note: { title: string; content: string }) => {
   const res = await fetch(`${API_URL}/api/notes/add`, {
     method: "POST",
@@ -38,6 +45,9 @@ export const createNote = async (token: string, note: { title: string; content: 
   return data;
 };
 
+/**
+ * Fetch a single note by ID for the authenticated user.
+ */
 export const fetchNoteById = async (token: string, id: string): Promise<Note> => {
   const res = await fetch(`${API_URL}/api/notes/${id}`, {
     headers: {
@@ -50,6 +60,9 @@ export const fetchNoteById = async (token: string, id: string): Promise<Note> =>
   return data;
 };
 
+/**
+ * Update a note by ID for the authenticated user.
+ */
 export const updateNote = async (token: string, id: string, note: { title: string; content: string }) => {
   const res = await fetch(`${API_URL}/api/notes/${id}`, {
     method: "PUT",
@@ -64,6 +77,9 @@ export const updateNote = async (token: string, id: string, note: { title: strin
   return data;
 };
 
+/**
+ * Delete a note by ID for the authenticated user.
+ */
 export const deleteNote = async (token: string, id: string) => {
   const res = await fetch(`${API_URL}/api/notes/${id}`, {
     method: "DELETE",
@@ -76,6 +92,9 @@ export const deleteNote = async (token: string, id: string) => {
   return data;
 };
 
+/**
+ * Summarize a note's content using the backend AI endpoint.
+ */
 export const summarizeNote = async (token: string, noteId: string): Promise<string> => {
   const res = await fetch(`${API_URL}/api/notes/summarize`, {
     method: "POST",

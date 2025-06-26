@@ -1,5 +1,6 @@
-// TODO: Max character in backend
 import React, { useState, useEffect } from "react";
+import { FiArrowLeft } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 interface NoteFormProps {
   initialTitle?: string;
@@ -20,6 +21,7 @@ const NoteForm: React.FC<NoteFormProps> = ({
 }) => {
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setTitle(initialTitle);
@@ -47,6 +49,13 @@ const NoteForm: React.FC<NoteFormProps> = ({
       onSubmit={handleSubmit}
       className="space-y-6 bg-white rounded-xl shadow-lg p-8 border border-gray-100"
     >
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-blue-600 hover:underline font-medium mb-4"
+      >
+        <FiArrowLeft /> Back
+      </button>
       <div>
         <label
           className="block text-gray-700 font-semibold mb-2"

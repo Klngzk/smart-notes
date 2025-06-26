@@ -6,12 +6,19 @@ import type { Note } from "../types";
 import { FaSpinner } from "react-icons/fa";
 import { FiEdit2, FiTrash2, FiArrowLeft, FiZap } from "react-icons/fi";
 import ConfirmModal from "../../../components/modal";
+import toast from "react-hot-toast";
 
+/**
+ * NoteViewer component
+ * - Displays a single note's details.
+ * - Allows summarizing, editing, and deleting the note.
+ */
 const NoteViewer = () => {
   const { token } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // State for note data, summary, loading, errors, and modal
   const [note, setNote] = useState<Note | null>(null);
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(true);
@@ -19,6 +26,7 @@ const NoteViewer = () => {
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  // Fetch note data on mount or when id/token changes
   useEffect(() => {
     if (!token || !id) return;
 
@@ -31,17 +39,20 @@ const NoteViewer = () => {
       .finally(() => setLoading(false));
   }, [token, id]);
 
+  // Handle note deletion
   const handleDelete = async () => {
     if (!token || !id) return;
     try {
       await deleteNote(token, id);
       setShowDeleteModal(false);
+      toast.success("Note deleted successfully");
       navigate("/notes");
     } catch (err: any) {
       alert(err.message || "Failed to delete note");
     }
   };
 
+  // Handle note summarization
   const handleSummarize = async () => {
     if (!note || !token) return;
     setLoadingSummary(true);
@@ -57,6 +68,7 @@ const NoteViewer = () => {
     }
   };
 
+  // Show loading state
   if (loading)
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -64,6 +76,8 @@ const NoteViewer = () => {
         <p className="text-gray-600 text-lg">Loading note...</p>
       </div>
     );
+
+  // Show error state
   if (error)
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -76,10 +90,14 @@ const NoteViewer = () => {
         </button>
       </div>
     );
+
+  // If note is not found, render nothing
   if (!note) return null;
 
+  // Main note viewer UI
   return (
     <div className="max-w-3xl mx-auto mt-10 space-y-8 bg-white rounded-xl shadow-lg p-8">
+      {/* Back button and note date */}
       <div className="flex justify-between items-center mb-2">
         <button
           onClick={() => navigate("/notes")}
@@ -92,16 +110,19 @@ const NoteViewer = () => {
         </span>
       </div>
 
+      {/* Note title */}
       <h2 className="text-3xl font-extrabold text-gray-800 mb-2">
         {note.title}
       </h2>
 
+      {/* Note content */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-4">
         <p className="whitespace-pre-wrap text-gray-800 break-words text-lg leading-relaxed">
           {note.content}
         </p>
       </div>
 
+      {/* Action buttons: Summarize, Edit, Delete */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-center">
         <button
           onClick={handleSummarize}
@@ -136,6 +157,7 @@ const NoteViewer = () => {
         </button>
       </div>
 
+      {/* Summary section */}
       <div className="mt-8">
         <h3 className="text-lg font-semibold text-gray-700 mb-2">Summary</h3>
         <div className="bg-gray-100 p-4 rounded text-gray-700 whitespace-pre-wrap min-h-[60px] border border-gray-200">
@@ -146,6 +168,7 @@ const NoteViewer = () => {
         {error && <p className="text-red-600 mt-2">{error}</p>}
       </div>
 
+      {/* Delete confirmation modal */}
       <ConfirmModal
         open={showDeleteModal}
         title="Delete Note"

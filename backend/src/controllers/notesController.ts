@@ -3,8 +3,11 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-//TODO: fix "any" types for req
 
+/**
+ * Get all notes for the authenticated user.
+ * Supports search, pagination (take & skip), and sorts by newest first.
+ */
 export const getUserNotes = async (req: Request, res: Response) => {
   const userId = req.user?.userId;
   const search = req.query.search?.toString();
@@ -33,7 +36,10 @@ export const getUserNotes = async (req: Request, res: Response) => {
   }
 };
 
-
+/**
+ * Create a new note for the authenticated user.
+ * Requires title and content in the request body.
+ */
 export const createNote = async (req: any, res: Response) => {
   const { title, content } = req.body;
   const userId = req.user?.userId;
@@ -54,6 +60,10 @@ export const createNote = async (req: any, res: Response) => {
   }
 };
 
+/**
+ * Get a single note by ID for the authenticated user.
+ * Ensures the note belongs to the user.
+ */
 export const getNoteById = async (req: Request, res: Response) => {
   const noteId = req.params.id;
   const userId = req.user?.userId;
@@ -74,18 +84,24 @@ export const getNoteById = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Update a note by ID for the authenticated user.
+ * Only allows updating notes that belong to the user.
+ */
 export const updateNote = async (req: Request, res: Response) => {
   const { title, content } = req.body;
   const userId = req.user?.userId;
   const noteId = req.params.id;
 
   try {
+    // Find the note and ensure it belongs to the user
     const note = await prisma.note.findFirst({
       where: { id: noteId, userId },
     });
 
     if (!note) return res.status(404).json({ message: "Note not found" });
 
+    // Update the note
     const updated = await prisma.note.update({
       where: { id: noteId },
       data: { title, content },
@@ -97,17 +113,23 @@ export const updateNote = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Delete a note by ID for the authenticated user.
+ * Only allows deleting notes that belong to the user.
+ */
 export const deleteNote = async (req: Request, res: Response) => {
   const userId = req.user?.userId;
   const noteId = req.params.id;
 
   try {
+    // Find the note and ensure it belongs to the user
     const note = await prisma.note.findFirst({
       where: { id: noteId, userId },
     });
 
     if (!note) return res.status(404).json({ message: "Note not found" });
 
+    // Delete the note
     await prisma.note.delete({ where: { id: noteId } });
 
     res.json({ message: "Note deleted" });

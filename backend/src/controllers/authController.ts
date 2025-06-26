@@ -6,9 +6,16 @@ import { sendVerificationEmail } from "../utils/email";
 import jwt from "jsonwebtoken";
 const prisma = new PrismaClient();
 
-
+// Regex for basic email validation
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/**
+ * Register a new user.
+ * - Validates email and password.
+ * - Checks if email is already registered.
+ * - Sends verification email before creating the user.
+ * - Hashes password before saving.
+ */
 export const register = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
@@ -21,6 +28,7 @@ export const register = async (req: Request, res: Response) => {
   }
 
   try {
+    // Check if user already exists
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) return res.status(400).json({ message: "Email already registered" });
 
@@ -51,6 +59,11 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Verify user's email using the verification token.
+ * - Finds user by verification token.
+ * - Sets emailVerified to true if token is valid.
+ */
 export const verifyEmail = async (req: Request, res: Response) => {
   const { token } = req.query;
   if (!token || typeof token !== "string") {
@@ -58,10 +71,12 @@ export const verifyEmail = async (req: Request, res: Response) => {
   }
 
   try {
+    // Find user with the given verification token
     const user = await prisma.user.findFirst({ where: { verificationToken: token } });
 
     if (!user) return res.status(404).json({ message: "Invalid verification token." });
 
+    // Mark email as verified
     await prisma.user.update({
       where: { id: user.id },
       data: {
@@ -75,22 +90,32 @@ export const verifyEmail = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Login user.
+ * - Checks if user exists and password is correct.
+ * - Checks if email is verified.
+ * - Returns JWT token if successful.
+ */
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
+    // Find user by email
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
+    // Compare password
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) return res.status(401).json({ message: "Invalid credentials" });
 
+    // Check if email is verified
     if (!user.emailVerified) {
       return res.status(403).json({ message: "Please verify your email before logging in." });
     }
 
+    // Generate JWT token
     const token = jwt.sign(
-      { userId: user.id, email: user.email } ,
+      { userId: user.id, email: user.email },
       process.env.JWT_SECRET! || "default",
       { expiresIn: process.env.JWT_EXPIRES_IN || "1d" } as jwt.SignOptions
     );
