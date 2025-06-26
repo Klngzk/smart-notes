@@ -21,3 +21,4 @@ EXPOSE 5000
 
 # Start the server using ts-node-dev
 CMD ["npx", "ts-node-dev", "--respawn", "--transpile-only", "src/index.ts"]
+# CMD ["npx", "prisma", "migrate","deploy","&&","npx", "ts-node-dev", "--respawn", "--transpile-only", "src/index.ts"]
